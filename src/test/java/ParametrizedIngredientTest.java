@@ -7,7 +7,7 @@ import praktikum.IngredientType;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(Parameterized.class)
-public class ParametrizedIngredientTest {  // ✅ Исправлено название класса
+public class ParametrizedIngredientTest {
 
     private final IngredientType type;
     private final String name;

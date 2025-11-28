@@ -10,82 +10,112 @@ import praktikum.Ingredient;
 import praktikum.IngredientType;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-    @RunWith(MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
+public class BurgerTest {
 
-        public class BurgerTest {
+    @Mock
+    private Bun bun;
 
-        @Mock
+    @Mock
+    private Ingredient ingredient;
 
-        private Bun bun;
+    @Mock
+    private Ingredient secondIngredient;
 
-        @Mock
-
-        private Ingredient ingredient;
-        private Burger burger;
+    private Burger burger;
 
     @Before
-
-        public void setUp() {
-            burger = new Burger();
-
-        }
+    public void setUp() {
+        burger = new Burger();
+    }
 
     @Test
-    public void setBuns() {
+    public void setBunsShouldSetBun() {
         burger.setBuns(bun);
 
-        assertEquals("Булочка", bun, burger.bun);
+        assertEquals("Булочка должна быть установлена", bun, burger.bun);
     }
 
     @Test
-    public void addIngredient() {
-
+    public void addIngredientShouldIncreaseIngredientsSize() {
         burger.addIngredient(ingredient);
 
-        assertEquals("Ингредиент не добавился", 1, burger.ingredients.size());
-        assertEquals("Неверный ингредиент", ingredient, burger.ingredients.get(0));
+        assertEquals("Размер списка ингредиентов должен увеличиться", 1, burger.ingredients.size());
     }
 
     @Test
-    public void removeIngredient() {
+    public void addIngredientShouldAddCorrectIngredient() {
+        burger.addIngredient(ingredient);
 
+        assertEquals("Добавлен неверный ингредиент", ingredient, burger.ingredients.get(0));
+    }
+
+    @Test
+    public void removeIngredientShouldDecreaseIngredientsSize() {
         burger.addIngredient(ingredient);
         burger.removeIngredient(0);
 
-        assertEquals("Ингредиент не получилось уудалить", 0, burger.ingredients.size());
+        assertEquals("Размер списка ингредиентов должен уменьшиться", 0, burger.ingredients.size());
     }
 
     @Test
-    public void moveIngredient() {
-
-        Ingredient secondIngredient = Mockito.mock(Ingredient.class);
-
+    public void moveIngredientShouldChangeIngredientPosition() {
         burger.addIngredient(ingredient);
         burger.addIngredient(secondIngredient);
         burger.moveIngredient(0, 1);
 
-        assertEquals("Ингредиент не переместился", ingredient, burger.ingredients.get(1));
+        assertEquals("Ингредиент должен переместиться на новую позицию", ingredient, burger.ingredients.get(1));
     }
 
     @Test
-    public void getReceipt() {
+    public void moveIngredientShouldKeepOtherIngredients() {
+        burger.addIngredient(ingredient);
+        burger.addIngredient(secondIngredient);
+        burger.moveIngredient(0, 1);
 
+        assertEquals("Второй ингредиент должен остаться в списке", secondIngredient, burger.ingredients.get(0));
+    }
 
+    @Test
+    public void getReceiptShouldContainBunName() {
+        Mockito.when(bun.getName()).thenReturn("original");
+        Mockito.when(bun.getPrice()).thenReturn(200.0f);
+
+        burger.setBuns(bun);
+        String receipt = burger.getReceipt();
+
+        assertTrue("Чек должен содержать название булочки", receipt.contains("original"));
+    }
+
+    @Test
+    public void getReceiptShouldContainIngredientName() {
         Mockito.when(bun.getName()).thenReturn("original");
         Mockito.when(bun.getPrice()).thenReturn(200.0f);
         Mockito.when(ingredient.getType()).thenReturn(IngredientType.SAUCE);
         Mockito.when(ingredient.getName()).thenReturn("chili");
         Mockito.when(ingredient.getPrice()).thenReturn(20.0f);
 
+        burger.setBuns(bun);
+        burger.addIngredient(ingredient);
+        String receipt = burger.getReceipt();
+
+        assertTrue("Чек должен содержать название ингредиента", receipt.contains("chili"));
+    }
+
+    @Test
+    public void getReceiptShouldNotBeEmpty() {
+        Mockito.when(bun.getName()).thenReturn("original");
+        Mockito.when(bun.getPrice()).thenReturn(200.0f);
+        Mockito.when(ingredient.getType()).thenReturn(IngredientType.SAUCE);
+        Mockito.when(ingredient.getName()).thenReturn("chili");
+        Mockito.when(ingredient.getPrice()).thenReturn(20.0f);
 
         burger.setBuns(bun);
         burger.addIngredient(ingredient);
-
-
         String receipt = burger.getReceipt();
 
-        assertEquals("Чек должен содержать название булочки", true, receipt.contains("original"));
-        assertEquals("Чек должен содержать ингредиент", true, receipt.contains("chili"));
+        assertTrue("Чек не должен быть пустым", receipt != null && !receipt.isEmpty());
     }
 }
